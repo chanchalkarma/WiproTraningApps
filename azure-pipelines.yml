@@ -38,8 +38,3 @@ steps:
 
  - publish: $(Build.ArtifactStagingDirectory)  
     artifact:drop
-
- - task: DotNetCoreCLI@2
-   inputs:
-     command: 'publish'
-     publishWebProjects: true
