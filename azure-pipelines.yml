@@ -28,7 +28,7 @@ steps:
     projects: '**/*.csproj'
     arguments: '--configuration Release'
 
- - task: DotNetCoreCLI@2
+ - task: PublishBuildArtifacts@1
    displayName: Publish
    inputs:
     command: publish
@@ -38,3 +38,8 @@ steps:
 
  - publish: $(Build.ArtifactStagingDirectory)  
     artifact:drop
+
+ - task: DotNetCoreCLI@2
+   inputs:
+     command: 'publish'
+     publishWebProjects: true
