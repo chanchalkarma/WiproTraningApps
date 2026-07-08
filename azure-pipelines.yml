@@ -3,6 +3,11 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
 trigger:
 - master
 
@@ -11,12 +16,12 @@ pool:
 
 steps:
  - task: DotNetCoreCLI@2
-    inputs:
-      command: restore
-      projects: '**/*.csproj'
+   inputs:
+    command: restore
+    projects: '**/*.csproj'
   
  - task: DotNetCoreCLI@2
-      inputs:
-        command:build
-        projects:'**/*.csproj'
-        arguments:'--configuration Release'
+   inputs:
+    command: build
+    projects: '**/*.csproj'
+    arguments: '--configuration Release'
