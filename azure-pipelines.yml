@@ -70,9 +70,9 @@ stages:
   dependsOn: Deploy_QA
   jobs:
   - deployment: DeployProd
-    environment: 'Prod'
+    environment: 'Production'
     strategy:
       runOnce:
         deploy:
           steps:
-          - script: echo "Deploying to Prod"
+          - script: echo "Deploying to Production"
