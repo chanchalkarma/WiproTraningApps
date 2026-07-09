@@ -1,40 +1,78 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: ubuntu-latest
 
-steps:
- - task: DotNetCoreCLI@2
-   displayName: Restore
-   inputs:
-    command: restore
-    projects: '**/*.csproj'
-  
- - task: DotNetCoreCLI@2
-   displayName: Test
-   inputs:
-    command: test
-    projects: '**/*.csproj'
-    arguments: '--configuration Release'
+stages:
 
- - task: PublishBuildArtifacts@1
-   displayName: Publish
-   inputs:
-    command: publish
-    publishWebProjects: true
-    arguments: '--configuration Release -- output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: true
+#  1. BUILD + TEST STAGE
+- stage: Build
+  displayName: "Build and Test"
+  jobs:
+  - job: BuildJob
+    steps:
 
- - publish: $(Build.ArtifactStagingDirectory)  
-    artifact:drop
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'restore'
+        projects: '**/*.csproj'
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        projects: '**/*.csproj'
+        arguments: '--configuration Release'
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+        projects: '**/*Tests.csproj'
+        arguments: '--configuration Release'
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        projects: '**/*.csproj'
+        arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: 'drop'
+
+#  2. DEPLOY TO DEV
+- stage: Deploy_Dev
+  dependsOn: Build
+  jobs:
+  - deployment: DeployDev
+    environment: 'Dev'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo "Deploying to Dev"
+
+#  3. DEPLOY TO QA
+- stage: Deploy_QA
+  dependsOn: Deploy_Dev
+  jobs:
+  - deployment: DeployQA
+    environment: 'QA'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo "Deploying to QA"
+
+#  4. DEPLOY TO PROD
+- stage: Deploy_Prod
+  dependsOn: Deploy_QA
+  jobs:
+  - deployment: DeployProd
+    environment: 'Prod'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo "Deploying to Prod"
